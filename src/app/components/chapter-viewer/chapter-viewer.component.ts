@@ -69,7 +69,7 @@ export class ChapterViewerComponent implements OnInit, OnDestroy {
 
   private renderMarkdown(markdown: string): void {
     const html = marked.parse(markdown) as string;
-    this.renderedHtml = this.sanitizer.sanitize(1, html) || '';
+    this.renderedHtml = this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   private updateNavigation(currentId: string): void {

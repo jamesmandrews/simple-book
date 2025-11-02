@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { Subject, takeUntil, filter } from 'rxjs';
 import { BookLoaderService } from '../../services/book-loader.service';
+import { ThemeService } from '../../services/theme.service';
 import { NavigationItem } from '../../models/book.model';
 
 @Component({
@@ -15,11 +16,13 @@ import { NavigationItem } from '../../models/book.model';
 export class BookNavigationComponent implements OnInit, OnDestroy {
   private bookLoader = inject(BookLoaderService);
   private router = inject(Router);
+  public themeService = inject(ThemeService);
   private destroy$ = new Subject<void>();
 
   bookTitle = '';
   groupedNavigation: Map<string, NavigationItem[]> = new Map();
   isOpen = true;
+  isDarkMode = false;
 
   ngOnInit(): void {
     // Subscribe to manifest changes
@@ -32,6 +35,13 @@ export class BookNavigationComponent implements OnInit, OnDestroy {
         this.groupedNavigation = this.bookLoader.getGroupedNavigation();
       }
     });
+
+    // Subscribe to theme changes
+    this.themeService.darkMode$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(isDark => {
+      this.isDarkMode = isDark;
+    });
   }
 
   ngOnDestroy(): void {
@@ -41,6 +51,10 @@ export class BookNavigationComponent implements OnInit, OnDestroy {
 
   toggleNavigation(): void {
     this.isOpen = !this.isOpen;
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   getPartKeys(): string[] {

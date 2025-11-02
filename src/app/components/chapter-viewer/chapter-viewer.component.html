@@ -10,12 +10,29 @@
         <p>{{ error }}</p>
       </div>
     } @else if (content) {
+      <nav class="chapter-navigation top">
+        <div class="nav-buttons">
+          @if (previousItem) {
+            <a [routerLink]="previousItem.route" class="nav-button prev">
+              <span class="nav-label">Previous</span>
+              <span class="nav-title">{{ previousItem.title }}</span>
+            </a>
+          }
+          @if (nextItem) {
+            <a [routerLink]="nextItem.route" class="nav-button next">
+              <span class="nav-label">Next</span>
+              <span class="nav-title">{{ nextItem.title }}</span>
+            </a>
+          }
+        </div>
+      </nav>
+
       <article class="chapter-content">
         <h1>{{ content.title }}</h1>
         <div class="markdown-content" [innerHTML]="renderedHtml"></div>
       </article>
 
-      <nav class="chapter-navigation">
+      <nav class="chapter-navigation bottom">
         <div class="nav-buttons">
           @if (previousItem) {
             <a [routerLink]="previousItem.route" class="nav-button prev">

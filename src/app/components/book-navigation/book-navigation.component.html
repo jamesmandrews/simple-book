@@ -1,9 +1,14 @@
 <nav class="book-navigation" [class.open]="isOpen">
   <div class="nav-header">
     <h2 class="book-title">{{ bookTitle }}</h2>
-    <button class="toggle-btn" (click)="toggleNavigation()" aria-label="Toggle navigation">
-      {{ isOpen ? '✕' : '☰' }}
-    </button>
+    <div class="header-buttons">
+      <button class="theme-toggle-btn" (click)="toggleTheme()" aria-label="Toggle dark mode">
+        {{ isDarkMode ? '☀️' : '🌙' }}
+      </button>
+      <button class="toggle-btn" (click)="toggleNavigation()" aria-label="Toggle navigation">
+        {{ isOpen ? '✕' : '☰' }}
+      </button>
+    </div>
   </div>
 
   <div class="nav-content" [class.visible]="isOpen">
