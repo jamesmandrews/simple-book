@@ -5,11 +5,12 @@ import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { marked } from 'marked';
 import { BookLoaderService } from '../../services/book-loader.service';
 import { BookContent } from '../../models/book.model';
+import { CodeCopyDirective } from '../../directives/code-copy.directive';
 
 @Component({
   selector: 'app-print-view',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CodeCopyDirective],
   templateUrl: './print-view.component.html',
   styleUrl: './print-view.component.css'
 })

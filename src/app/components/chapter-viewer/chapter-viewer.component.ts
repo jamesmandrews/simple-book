@@ -6,11 +6,12 @@ import { Subject, takeUntil, switchMap, filter, combineLatest, take } from 'rxjs
 import { marked } from 'marked';
 import { BookLoaderService } from '../../services/book-loader.service';
 import { BookContent, NavigationItem } from '../../models/book.model';
+import { CodeCopyDirective } from '../../directives/code-copy.directive';
 
 @Component({
   selector: 'app-chapter-viewer',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CodeCopyDirective],
   templateUrl: './chapter-viewer.component.html',
   styleUrl: './chapter-viewer.component.css'
 })
