@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, Router } from '@angular/router';
+import { RouterOutlet, Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil, filter } from 'rxjs';
 import { BookNavigationComponent } from './components/book-navigation/book-navigation.component';
 import { BookLoaderService } from './services/book-loader.service';
@@ -9,7 +9,7 @@ import { ThemeService } from './services/theme.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, BookNavigationComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, BookNavigationComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

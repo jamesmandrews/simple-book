@@ -15,6 +15,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/chapter-viewer/chapter-viewer.component').then(m => m.ChapterViewerComponent)
   },
   {
+    path: 'print',
+    loadComponent: () => import('./components/print-view/print-view.component').then(m => m.PrintViewComponent)
+  },
+  {
     path: '**',
     redirectTo: '/chapter/chapter01'
   }

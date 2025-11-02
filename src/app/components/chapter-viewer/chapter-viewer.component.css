@@ -241,3 +241,18 @@
     align-items: flex-start;
   }
 }
+
+/* Print styles */
+@media print {
+  .chapter-navigation {
+    display: none;
+  }
+
+  .chapter-viewer {
+    padding: 0;
+  }
+
+  .markdown-content table tbody tr:hover {
+    background: inherit;
+  }
+}

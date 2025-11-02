@@ -1,0 +1,18 @@
+@if (loading) {
+  <div class="loading">
+    <p>Loading book for printing...</p>
+  </div>
+} @else {
+  <div class="print-view">
+    <div class="book-cover">
+      <h1 class="book-title">{{ bookTitle }}</h1>
+    </div>
+
+    @for (chapter of chapters; track chapter.title) {
+      <div class="chapter">
+        <h1 class="chapter-title">{{ chapter.title }}</h1>
+        <div class="markdown-content" [innerHTML]="chapter.html"></div>
+      </div>
+    }
+  </div>
+}

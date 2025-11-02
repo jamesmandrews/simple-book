@@ -53,6 +53,23 @@
   box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
 }
 
+.print-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: var(--text-tertiary);
+  transition: transform 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.print-btn:hover {
+  color: var(--link-color);
+  transform: scale(1.1);
+}
+
 .theme-toggle-btn {
   background: none;
   border: none;
@@ -96,5 +113,17 @@
 
   .content-area {
     margin-left: 0;
+  }
+}
+
+/* Print styles */
+@media print {
+  .app-header {
+    display: none;
+  }
+
+  .content-area {
+    margin-left: 0;
+    margin-top: 0;
   }
 }

@@ -132,3 +132,10 @@
 .nav-content::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
 }
+
+/* Print styles */
+@media print {
+  .book-navigation {
+    display: none;
+  }
+}
