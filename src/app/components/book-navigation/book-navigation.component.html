@@ -1,0 +1,28 @@
+<nav class="book-navigation" [class.open]="isOpen">
+  <div class="nav-header">
+    <h2 class="book-title">{{ bookTitle }}</h2>
+    <button class="toggle-btn" (click)="toggleNavigation()" aria-label="Toggle navigation">
+      {{ isOpen ? '✕' : '☰' }}
+    </button>
+  </div>
+
+  <div class="nav-content" [class.visible]="isOpen">
+    @for (part of getPartKeys(); track part) {
+      <div class="nav-section">
+        <h3 class="section-title">{{ part }}</h3>
+        <ul class="chapter-list">
+          @for (item of groupedNavigation.get(part); track item.id) {
+            <li>
+              <a
+                [routerLink]="item.route"
+                routerLinkActive="active"
+                class="chapter-link">
+                {{ item.title }}
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+</nav>

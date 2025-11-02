@@ -1,7 +1,7 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
-# Ignore the book content.
-/book
+# Ignore the book content (stored in src/assets/books/)
+src/assets/books/*/
 
 # Compiled output
 /dist

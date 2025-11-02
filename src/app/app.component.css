@@ -1,0 +1,18 @@
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background: #fff;
+}
+
+.content-area {
+  flex: 1;
+  margin-left: 280px;
+  overflow-y: auto;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .content-area {
+    margin-left: 0;
+  }
+}

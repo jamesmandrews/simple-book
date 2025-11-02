@@ -1,0 +1,138 @@
+.book-navigation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: #f8f9fa;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fff;
+}
+
+.book-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1a1a1a;
+  flex: 1;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: #666;
+  display: none;
+}
+
+.toggle-btn:hover {
+  color: #1976d2;
+}
+
+.nav-content {
+  overflow-y: auto;
+  flex: 1;
+  padding: 1rem 0;
+}
+
+.nav-section {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+  padding: 0.5rem 1rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.chapter-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chapter-list li {
+  margin: 0;
+}
+
+.chapter-link {
+  display: block;
+  padding: 0.625rem 1rem 0.625rem 1.5rem;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.9375rem;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.chapter-link:hover {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.chapter-link.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  border-left-color: #1976d2;
+  font-weight: 600;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .book-navigation {
+    width: 100%;
+    transform: translateX(-100%);
+  }
+
+  .book-navigation.open {
+    transform: translateX(0);
+  }
+
+  .toggle-btn {
+    display: block;
+  }
+
+  .nav-content {
+    display: none;
+  }
+
+  .nav-content.visible {
+    display: block;
+  }
+}
+
+/* Scrollbar styling */
+.nav-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nav-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.nav-content::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.nav-content::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
