@@ -23,8 +23,14 @@ export class BookNavigationComponent implements OnInit, OnDestroy {
   groupedNavigation: Map<string, NavigationItem[]> = new Map();
   isOpen = true;
   isDarkMode = false;
+  availableBooks: Array<{id: string, name: string}> = [];
+  currentBookId = '';
 
   ngOnInit(): void {
+    // Get available books
+    this.availableBooks = this.bookLoader.getAvailableBooks();
+    this.currentBookId = this.bookLoader.getCurrentBook();
+
     // Subscribe to manifest changes
     this.bookLoader.manifest$.pipe(
       filter(manifest => manifest !== null),
@@ -42,6 +48,13 @@ export class BookNavigationComponent implements OnInit, OnDestroy {
     ).subscribe(isDark => {
       this.isDarkMode = isDark;
     });
+
+    // Subscribe to current book changes
+    this.bookLoader.currentBook$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(bookId => {
+      this.currentBookId = bookId;
+    });
   }
 
   ngOnDestroy(): void {
@@ -55,6 +68,23 @@ export class BookNavigationComponent implements OnInit, OnDestroy {
 
   toggleTheme(): void {
     this.themeService.toggleTheme();
+  }
+
+  onBookChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const bookId = select.value;
+
+    if (bookId !== this.currentBookId) {
+      this.bookLoader.switchBook(bookId).subscribe({
+        next: () => {
+          // Navigate to first chapter of new book
+          this.router.navigate(['/chapter/chapter01']);
+        },
+        error: (err) => {
+          console.error('Failed to switch book:', err);
+        }
+      });
+    }
   }
 
   getPartKeys(): string[] {

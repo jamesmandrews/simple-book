@@ -1,6 +1,23 @@
-<div class="app-container">
-  <app-book-navigation></app-book-navigation>
-  <main class="content-area">
-    <router-outlet />
-  </main>
+<div class="app-wrapper">
+  <header class="app-header">
+    <h1 class="app-title">{{ bookTitle }}</h1>
+    <div class="header-controls">
+      @if (availableBooks.length > 1) {
+        <select class="book-selector" [value]="currentBookId" (change)="onBookChange($event)">
+          @for (book of availableBooks; track book.id) {
+            <option [value]="book.id">{{ book.name }}</option>
+          }
+        </select>
+      }
+      <button class="theme-toggle-btn" (click)="toggleTheme()" aria-label="Toggle dark mode">
+        {{ isDarkMode ? '☀️' : '🌙' }}
+      </button>
+    </div>
+  </header>
+  <div class="app-container">
+    <app-book-navigation></app-book-navigation>
+    <main class="content-area">
+      <router-outlet />
+    </main>
+  </div>
 </div>

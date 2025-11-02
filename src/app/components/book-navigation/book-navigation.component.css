@@ -13,30 +13,13 @@
 }
 
 .nav-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 1rem;
+  display: none;
+  padding: 1rem;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-primary);
 }
 
-.book-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin: 0;
-  color: var(--text-primary);
-  flex: 1;
-}
-
-.header-buttons {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.theme-toggle-btn,
-.toggle-btn {
+.toggle-btn-mobile {
   background: none;
   border: none;
   font-size: 1.5rem;
@@ -44,22 +27,18 @@
   padding: 0.25rem;
   color: var(--text-tertiary);
   transition: transform 0.2s;
+  display: none;
 }
 
-.theme-toggle-btn:hover,
-.toggle-btn:hover {
+.toggle-btn-mobile:hover {
   color: var(--link-color);
   transform: scale(1.1);
-}
-
-.toggle-btn {
-  display: none;
 }
 
 .nav-content {
   overflow-y: auto;
   flex: 1;
-  padding: 1rem 0;
+  padding: 2.5rem 0 1rem 0;
 }
 
 .nav-section {
@@ -110,6 +89,14 @@
 
 /* Mobile responsive */
 @media (max-width: 768px) {
+  .nav-header {
+    display: block;
+  }
+
+  .toggle-btn-mobile {
+    display: block;
+  }
+
   .book-navigation {
     width: 100%;
     transform: translateX(-100%);
@@ -117,10 +104,6 @@
 
   .book-navigation.open {
     transform: translateX(0);
-  }
-
-  .toggle-btn {
-    display: block;
   }
 
   .nav-content {

@@ -11,11 +11,29 @@ export class BookLoaderService {
   private http = inject(HttpClient);
   private manifestSubject = new BehaviorSubject<BookManifest | null>(null);
   private contentCache = new Map<string, string>();
+  private currentBookSubject = new BehaviorSubject<string>('electronics-beginner');
 
   public manifest$ = this.manifestSubject.asObservable();
+  public currentBook$ = this.currentBookSubject.asObservable();
+
+  // Available books - hardcoded for now, could be fetched from a config file
+  private availableBooks = [
+    { id: 'electronics-beginner', name: 'Electronics Beginner' },
+    { id: 'electronics-beginner-two', name: 'Electronics Beginner Two' }
+  ];
 
   // Path to book assets - configurable for different books
   private bookPath = '/assets/books/electronics-beginner'; // Default book
+  private readonly BOOK_KEY = 'selected-book';
+
+  constructor() {
+    // Load saved book preference or use default
+    const savedBook = this.getCookie(this.BOOK_KEY);
+    if (savedBook && this.availableBooks.some(b => b.id === savedBook)) {
+      this.currentBookSubject.next(savedBook);
+      this.bookPath = `/assets/books/${savedBook}`;
+    }
+  }
 
   /**
    * Load the book manifest (book.json)
@@ -29,6 +47,43 @@ export class BookLoaderService {
       }),
       shareReplay(1)
     );
+  }
+
+  /**
+   * Get available books
+   */
+  getAvailableBooks() {
+    return this.availableBooks;
+  }
+
+  /**
+   * Get current book ID
+   */
+  getCurrentBook(): string {
+    return this.currentBookSubject.value;
+  }
+
+  /**
+   * Switch to a different book
+   */
+  switchBook(bookId: string): Observable<BookManifest> {
+    if (!this.availableBooks.some(b => b.id === bookId)) {
+      throw new Error(`Book not found: ${bookId}`);
+    }
+
+    // Update current book
+    this.currentBookSubject.next(bookId);
+    this.bookPath = `/assets/books/${bookId}`;
+
+    // Clear cache
+    this.contentCache.clear();
+    this.manifestSubject.next(null);
+
+    // Save to cookie
+    this.setCookie(this.BOOK_KEY, bookId, 365);
+
+    // Load new manifest
+    return this.loadManifest();
   }
 
   /**
@@ -160,6 +215,26 @@ export class BookLoaderService {
     this.bookPath = path;
     this.manifestSubject.next(null);
     this.contentCache.clear();
+  }
+
+  private setCookie(name: string, value: string, days: number): void {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = `expires=${date.toUTCString()}`;
+    document.cookie = `${name}=${value};${expires};path=/;SameSite=Strict`;
+  }
+
+  private getCookie(name: string): string | null {
+    const nameEQ = name + '=';
+    const cookies = document.cookie.split(';');
+
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.indexOf(nameEQ) === 0) {
+        return cookie.substring(nameEQ.length);
+      }
+    }
+    return null;
   }
 
   /**

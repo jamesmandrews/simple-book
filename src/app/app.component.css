@@ -1,7 +1,76 @@
-.app-container {
+.app-wrapper {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background: var(--bg-primary);
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: var(--bg-primary);
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.header-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.book-selector {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 200px;
+}
+
+.book-selector:hover {
+  border-color: var(--link-color);
+}
+
+.book-selector:focus {
+  outline: none;
+  border-color: var(--link-color);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: var(--text-tertiary);
+  transition: transform 0.2s;
+}
+
+.theme-toggle-btn:hover {
+  color: var(--link-color);
+  transform: scale(1.1);
+}
+
+.app-container {
+  display: flex;
+  flex: 1;
 }
 
 .content-area {
@@ -12,6 +81,19 @@
 
 /* Mobile responsive */
 @media (max-width: 768px) {
+  .app-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .app-title {
+    font-size: 1.125rem;
+  }
+
+  .book-selector {
+    min-width: 150px;
+    font-size: 0.875rem;
+  }
+
   .content-area {
     margin-left: 0;
   }
