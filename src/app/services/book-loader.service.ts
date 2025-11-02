@@ -4,6 +4,11 @@ import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map, catchError, tap, shareReplay } from 'rxjs/operators';
 import { BookManifest, Chapter, Appendix, NavigationItem, BookContent } from '../models/book.model';
 
+interface BooksConfig {
+  books: Array<{ id: string; name: string }>;
+  defaultBook: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -11,38 +16,67 @@ export class BookLoaderService {
   private http = inject(HttpClient);
   private manifestSubject = new BehaviorSubject<BookManifest | null>(null);
   private contentCache = new Map<string, string>();
-  private currentBookSubject = new BehaviorSubject<string>('electronics-beginner');
+  private currentBookSubject = new BehaviorSubject<string>('');
+  private availableBooksSubject = new BehaviorSubject<Array<{ id: string; name: string }>>([]);
 
   public manifest$ = this.manifestSubject.asObservable();
   public currentBook$ = this.currentBookSubject.asObservable();
-
-  // Available books - hardcoded for now, could be fetched from a config file
-  private availableBooks = [
-    { id: 'electronics-beginner', name: 'Electronics Beginner' },
-    { id: 'electronics-beginner-two', name: 'Electronics Beginner Two' }
-  ];
+  public availableBooks$ = this.availableBooksSubject.asObservable();
 
   // Path to book assets - configurable for different books
-  private bookPath = '/assets/books/electronics-beginner'; // Default book
+  private bookPath = '';
   private readonly BOOK_KEY = 'selected-book';
+  private booksConfigLoaded = false;
 
   constructor() {
-    // Load saved book preference or use default
-    const savedBook = this.getCookie(this.BOOK_KEY);
-    if (savedBook && this.availableBooks.some(b => b.id === savedBook)) {
-      this.currentBookSubject.next(savedBook);
-      this.bookPath = `/assets/books/${savedBook}`;
-    }
+    // Load books configuration on initialization
+    this.loadBooksConfig();
+  }
+
+  /**
+   * Load books configuration from assets/book-config.json
+   */
+  private loadBooksConfig(): void {
+    this.http.get<BooksConfig>('/assets/book-config.json').subscribe({
+      next: (config) => {
+        this.availableBooksSubject.next(config.books);
+
+        // Determine which book to load
+        const savedBook = this.getCookie(this.BOOK_KEY);
+        const bookToLoad = (savedBook && config.books.some(b => b.id === savedBook))
+          ? savedBook
+          : config.defaultBook;
+
+        // Set bookPath BEFORE emitting to currentBookSubject
+        this.bookPath = `/assets/books/${bookToLoad}`;
+        this.booksConfigLoaded = true;
+        this.currentBookSubject.next(bookToLoad);
+      },
+      error: (err) => {
+        console.error('Failed to load books config:', err);
+        // Fallback to hardcoded default
+        const fallbackBooks = [{ id: 'electronics-beginner', name: 'Electronics Beginner' }];
+        this.availableBooksSubject.next(fallbackBooks);
+        // Set bookPath BEFORE emitting to currentBookSubject
+        this.bookPath = '/assets/books/electronics-beginner';
+        this.booksConfigLoaded = true;
+        this.currentBookSubject.next('electronics-beginner');
+      }
+    });
   }
 
   /**
    * Load the book manifest (book.json)
    */
   loadManifest(): Observable<BookManifest> {
+    if (!this.bookPath) {
+      console.error('Cannot load manifest: bookPath is empty. Config may not be loaded yet.');
+      return of(null as any);
+    }
     return this.http.get<BookManifest>(`${this.bookPath}/book.json`).pipe(
       tap(manifest => this.manifestSubject.next(manifest)),
       catchError(error => {
-        console.error('Failed to load book manifest:', error);
+        console.error('Failed to load book manifest from:', `${this.bookPath}/book.json`, error);
         throw error;
       }),
       shareReplay(1)
@@ -50,10 +84,10 @@ export class BookLoaderService {
   }
 
   /**
-   * Get available books
+   * Get available books (synchronous - use availableBooks$ observable for reactive updates)
    */
   getAvailableBooks() {
-    return this.availableBooks;
+    return this.availableBooksSubject.value;
   }
 
   /**
@@ -67,7 +101,8 @@ export class BookLoaderService {
    * Switch to a different book
    */
   switchBook(bookId: string): Observable<BookManifest> {
-    if (!this.availableBooks.some(b => b.id === bookId)) {
+    const availableBooks = this.availableBooksSubject.value;
+    if (!availableBooks.some(b => b.id === bookId)) {
       throw new Error(`Book not found: ${bookId}`);
     }
 

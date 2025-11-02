@@ -1,4 +1,9 @@
 {
-  "currentBook": "electronics",
-  "booksPath": "/assets/books"
+  "books": [
+    {
+      "id": "electronics-beginner",
+      "name": "Electronics Beginner"
+    }
+  ],
+  "defaultBook": "electronics-beginner"
 }

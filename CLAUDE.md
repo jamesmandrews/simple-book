@@ -4,58 +4,90 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an **Angular 19 application** that renders a beginner-friendly electronics textbook from Markdown files into HTML. The book content (located in `book/`) covers electronics fundamentals from basic concepts (voltage, current, resistance) through practical projects and microcontroller programming. The content is organized into 20 chapters and 4 appendices.
-
-The Angular application provides a custom book reader interface with navigation, chapter routing, and Markdown-to-HTML rendering capabilities.
+This is an **Angular 19 application** called "Simple Book" that renders textbooks from Markdown files into HTML. The application supports multiple books and provides a custom book reader interface with navigation, chapter routing, dark mode, and Markdown-to-HTML rendering capabilities.
 
 ## Repository Structure
 
 ```
-book/                   # Source Markdown content
-├── SUMMARY.md          # Table of contents with chapter structure
-├── chapter01.md        # Chapter 1: Introduction to Electronics
-├── chapter02.md        # Chapter 2: Ohm's Law
-├── ...
-├── chapter20.md        # Chapter 20: Next Steps
-├── appendixA.md        # Component Reference Guide
-├── appendixB.md        # Essential Formulas
-├── appendixC.md        # Troubleshooting Guide
-└── appendixD.md        # Glossary
-
-src/                    # Angular application (to be created)
-└── app/
-    ├── components/     # Book reader UI components
-    ├── services/       # Markdown parsing and chapter loading
-    ├── models/         # Chapter and book structure models
-    └── pipes/          # Markdown rendering pipes
+src/
+├── app/
+│   ├── components/
+│   │   ├── book-navigation/      # Sidebar navigation component
+│   │   └── chapter-viewer/       # Main content rendering component
+│   ├── services/
+│   │   ├── book-loader.service.ts  # Manages book loading and navigation
+│   │   └── theme.service.ts        # Dark mode management
+│   ├── models/
+│   │   └── book.model.ts          # TypeScript interfaces for book structure
+│   ├── app.component.*            # Root component with header and layout
+│   └── app.routes.ts              # Route configuration
+├── assets/
+│   ├── book-config.json           # Configuration file listing available books
+│   └── books/
+│       ├── electronics-beginner/  # Example book directory
+│       │   ├── book.json          # Book manifest with metadata and structure
+│       │   ├── chapter01.md       # Chapter markdown files
+│       │   ├── chapter02.md
+│       │   └── ...
+│       └── [other-books]/         # Additional books in separate directories
+└── styles.css                     # Global styles including theme variables
 ```
 
-## Book Content Organization
+## Book Configuration
 
-The book is divided into six main parts:
-1. **Part I: Fundamentals** (Chapters 1-3) - Basic electrical concepts and schematics
-2. **Part II: Components** (Chapters 4-7) - Resistors, capacitors, inductors, diodes
-3. **Part III: Circuits** (Chapters 8-10) - Series, parallel, and combination circuits
-4. **Part IV: Active Components** (Chapters 11-12) - Transistors and integrated circuits
-5. **Part V: Practical Applications** (Chapters 13-16) - Power supplies, digital electronics, sensors, microcontrollers
-6. **Part VI: Building Projects** (Chapters 17-20) - Breadboarding, soldering, beginner projects
+### book-config.json
 
-### Chapter Naming Convention
+Located at `src/assets/book-config.json`, this file lists all available books:
 
-Chapters follow a zero-padded two-digit naming scheme: `chapter01.md` through `chapter20.md`. Appendices use letter suffixes: `appendixA.md` through `appendixD.md`.
+```json
+{
+  "books": [
+    {
+      "id": "electronics-beginner",
+      "name": "Electronics Beginner"
+    }
+  ],
+  "defaultBook": "electronics-beginner"
+}
+```
 
-### Content Structure
+- **books**: Array of available books with `id` (directory name) and `name` (display name)
+- **defaultBook**: ID of the book to load by default
 
-Each chapter typically includes:
-- Introduction section
-- Multiple topical subsections with headers
-- Practical examples and explanations
-- Chapter summary at the end
-- "Before Moving to Next Chapter" checklist
+### Book Manifest (book.json)
 
-### SUMMARY.md
+Each book directory must contain a `book.json` manifest file:
 
-The `SUMMARY.md` file serves as the book's table of contents and defines the navigation structure. The Angular app should parse this file to generate the navigation menu and chapter ordering.
+```json
+{
+  "title": "Book Title",
+  "author": "Author Name",
+  "version": "1.0.0",
+  "description": "Book description",
+  "chapters": [
+    {
+      "id": "chapter01",
+      "title": "Chapter Title",
+      "file": "chapter01.md",
+      "order": 1,
+      "part": "Part I: Section Name"
+    }
+  ],
+  "appendices": [
+    {
+      "id": "appendixA",
+      "title": "Appendix Title",
+      "file": "appendixA.md",
+      "order": 1
+    }
+  ]
+}
+```
+
+**Key Fields:**
+- `chapters`: Array of chapter definitions with ID, title, file path, order, and part grouping
+- `appendices`: Array of appendix definitions
+- `part`: Used to group chapters in the navigation sidebar
 
 ## Angular Application Development
 
@@ -122,140 +154,168 @@ The `SUMMARY.md` file serves as the book's table of contents and defines the nav
 
 #### Services
 
-1. **MarkdownLoaderService** - Loads Markdown files from `book/` directory
-   - Fetches `.md` files via HTTP
-   - Parses SUMMARY.md to build book structure
-   - Caches loaded chapters for performance
+1. **BookLoaderService** (`src/app/services/book-loader.service.ts`)
+   - Loads `book-config.json` on initialization to get available books
+   - Manages current book selection with cookie persistence
+   - Loads book manifest (`book.json`) for current book
+   - Fetches markdown files via HTTP
+   - Caches loaded chapter content for performance
+   - Provides navigation structure (grouped by parts)
+   - Handles book switching
 
-2. **ChapterNavigationService** - Manages navigation between chapters
-   - Tracks current chapter
-   - Provides next/previous chapter navigation
-   - Handles routing to specific chapters
-
-3. **MarkdownParserService** - Converts Markdown to HTML
-   - Uses `marked` or `ngx-markdown` library
-   - Sanitizes HTML output
-   - Applies custom styling to rendered content
+2. **ThemeService** (`src/app/services/theme.service.ts`)
+   - Manages dark mode state
+   - Persists theme preference via cookies
+   - Applies theme by toggling `dark-mode` class on document body
 
 #### Components
 
-1. **ChapterViewerComponent** - Displays rendered chapter content
-   - Receives chapter ID from route parameters
-   - Loads and displays Markdown content as HTML
-   - Handles navigation to next/previous chapters
+1. **AppComponent** - Root component with sticky header
+   - Displays book title
+   - Book selector dropdown (top-right)
+   - Dark mode toggle button
+   - Manages overall layout with sidebar and content area
 
-2. **NavigationComponent** - Sidebar or header navigation
-   - Displays book structure from SUMMARY.md
-   - Highlights current chapter
-   - Provides quick navigation to any chapter
+2. **ChapterViewerComponent** - Displays rendered chapter content
+   - Receives chapter/appendix ID from route parameters
+   - Waits for manifest to load before fetching content
+   - Renders Markdown to HTML using `marked` library
+   - Uses `bypassSecurityTrustHtml` for rendering (safe for trusted content)
+   - Shows previous/next navigation at top and bottom
+   - Displays loading state and error messages
 
-3. **TableOfContentsComponent** - In-page table of contents
-   - Extracts headers from current chapter
-   - Provides jump-to-section links
-   - Updates on scroll position
+3. **BookNavigationComponent** - Sidebar navigation
+   - Displays chapters grouped by parts
+   - Shows appendices in separate group
+   - Highlights current chapter with `routerLinkActive`
+   - Mobile responsive with toggle button
 
 #### Routing
 
-Configure routes for chapter navigation:
+Routes are configured in `src/app/app.routes.ts`:
 ```typescript
-const routes: Routes = [
-  { path: '', redirectTo: '/chapter/01', pathMatch: 'full' },
+export const routes: Routes = [
+  { path: '', redirectTo: '/chapter/chapter01', pathMatch: 'full' },
   { path: 'chapter/:id', component: ChapterViewerComponent },
   { path: 'appendix/:id', component: ChapterViewerComponent },
-  { path: '**', redirectTo: '/chapter/01' }
 ];
 ```
 
-### Markdown File Loading
+#### Theme System
 
-Since Angular runs in the browser, Markdown files need to be:
-1. **Placed in `src/assets/book/`** - Copy from `book/` to `src/assets/book/`
-2. **Loaded via HTTP** - Use `HttpClient` to fetch files
-3. **Configured in `angular.json`** - Add `book/` to assets array:
-   ```json
-   "assets": [
-     "src/favicon.ico",
-     "src/assets",
-     { "glob": "**/*", "input": "book/", "output": "/assets/book/" }
-   ]
-   ```
+The application uses CSS custom properties for theming:
+- Light mode: Default variables defined in `:root`
+- Dark mode: Overridden in `.dark-mode` class
+- Theme persisted via cookies
+- Variables include: `--bg-primary`, `--bg-secondary`, `--text-primary`, `--link-color`, etc.
 
-### Content Rendering Considerations
+#### State Management
 
-- **Sanitization**: Use Angular's `DomSanitizer` to safely render HTML from Markdown
-- **Syntax highlighting**: Consider adding `prismjs` or `highlight.js` for code blocks
-- **Math rendering**: If formulas exist, integrate `KaTeX` or `MathJax`
-- **Responsive design**: Ensure readable text on mobile devices
-- **Dark mode**: Consider theme support for better reading experience
+- **RxJS BehaviorSubjects** for reactive state:
+  - `manifest$`: Current book manifest
+  - `currentBook$`: Currently selected book ID
+  - `availableBooks$`: List of available books
+  - `darkMode$`: Theme state
+- **Cookie persistence** for:
+  - Selected book (`selected-book`)
+  - Theme preference (`theme`)
 
-## Content Guidelines
+### Content Rendering
 
-### Writing Style
-
-The book uses:
-- **Friendly, conversational tone** targeting complete beginners
-- **Water analogy** for explaining electrical concepts (voltage as pressure, current as flow, resistance as restriction)
-- **Practical examples** relating concepts to everyday devices
-- **Progressive complexity** building from fundamentals to advanced topics
-
-### Technical Accuracy
-
-When editing book content:
-- Maintain technical accuracy while keeping explanations accessible
-- Use correct units: volts (V), amperes/amps (A), ohms (Ω), watts (W), farads (F), henries (H)
-- Follow standard electronics notation and conventions
-- Verify formulas (especially in Appendix B)
-
-### Markdown Consistency
-
-Maintain consistency across chapters:
-- Heading hierarchy (# for chapter titles, ## for major sections, ### for subsections)
-- Code formatting for formulas and values (e.g., `V = I × R`)
-- Bold (`**text**`) for emphasis on first introduction of key terms
-- Chapter summary format at the end of each chapter
+- **Markdown parsing**: Uses `marked` library with GitHub Flavored Markdown (GFM)
+- **HTML rendering**: Rendered via `[innerHTML]` binding with `SafeHtml`
+- **Security**: Uses `bypassSecurityTrustHtml()` - acceptable for trusted book content
+- **Styling**: Global styles in `src/styles.css` target rendered HTML elements
+- **Tables**: Styled with borders, zebra striping, and hover effects
 
 ## Common Development Tasks
 
-### Adding a New Chapter
+### Adding a New Book
 
-1. Create the Markdown file: `book/chapterXX.md` (use zero-padded numbering)
-2. Follow the standard chapter structure with introduction, sections, and summary
-3. Update `book/SUMMARY.md` to include the new chapter
-4. No code changes needed - the Angular app loads chapters dynamically
+1. Create a new directory in `src/assets/books/` (e.g., `my-new-book/`)
+2. Create a `book.json` manifest file with metadata, chapters, and appendices
+3. Add markdown files for each chapter/appendix
+4. Update `src/assets/book-config.json` to include the new book:
+   ```json
+   {
+     "books": [
+       {"id": "existing-book", "name": "Existing Book"},
+       {"id": "my-new-book", "name": "My New Book"}
+     ],
+     "defaultBook": "existing-book"
+   }
+   ```
+5. No code changes needed - the app loads books dynamically
 
-### Modifying the Book Reader UI
+### Adding a Chapter to Existing Book
 
-When updating the Angular application:
-1. Keep the `book/` directory as the source of truth for content
-2. Don't hardcode chapter lists - parse from SUMMARY.md
-3. Maintain responsive design for mobile reading
-4. Test navigation between all chapters and appendices
+1. Create the markdown file in the book directory (e.g., `chapter05.md`)
+2. Update the book's `book.json` manifest:
+   ```json
+   {
+     "id": "chapter05",
+     "title": "Chapter Title",
+     "file": "chapter05.md",
+     "order": 5,
+     "part": "Part I: Section Name"
+   }
+   ```
+3. No code changes needed - navigation updates automatically
 
 ### Styling the Rendered Content
 
-- Create global styles for rendered Markdown in `src/styles.css`
-- Target rendered HTML elements (`.markdown-content h2`, `.markdown-content code`, etc.)
-- Ensure readability: appropriate font sizes, line heights, and spacing
-- Style code blocks, blockquotes, and lists appropriately
+- Global styles for rendered markdown are in `src/styles.css`
+- Use CSS custom properties for theming (e.g., `var(--text-primary)`)
+- Styles apply to dynamically rendered HTML via `[innerHTML]`
+- Component-scoped styles won't work for rendered markdown - use global styles
 
-## Version Control
+### Modifying the Theme
 
-The `.gitignore` currently excludes `/book`, which contains the source Markdown files. Update `.gitignore` to exclude Angular build artifacts while keeping book content:
+Theme variables are defined in `src/styles.css`:
+```css
+:root {
+  --bg-primary: #ffffff;
+  --text-primary: #1a1a1a;
+  /* ... more variables */
+}
 
-```
-# Angular
-/dist
-/node_modules
-/.angular
-.angular/
-
-# IDE
-.vscode/
-.idea/
-
-# Environment
-.env
-.env.local
+.dark-mode {
+  --bg-primary: #1a1a1a;
+  --text-primary: #e0e0e0;
+  /* ... override variables */
+}
 ```
 
-Do NOT exclude `/book` - this is source content, not build output.
+## Important Notes
+
+### Book Content Location
+
+- Books are stored in `src/assets/books/` with each book in its own directory
+- Each book directory should be in a **separate git repository**
+- `.gitignore` excludes `src/assets/books/*/` to prevent committing book content
+- Only `.gitkeep` files in book directories are tracked
+
+### Configuration Management
+
+- **DO NOT hardcode book lists** in services or components
+- Book list is loaded from `src/assets/book-config.json`
+- This allows adding/removing books without code changes
+
+### Security Considerations
+
+- The app uses `bypassSecurityTrustHtml()` to render markdown-generated HTML
+- This is acceptable because book content is trusted (you control the markdown files)
+- **Do not** use this approach if rendering user-generated content
+
+### State Management
+
+- Services use RxJS `BehaviorSubject` for reactive state
+- Components subscribe to observables and clean up with `takeUntil(destroy$)`
+- Avoid memory leaks by always unsubscribing in `ngOnDestroy`
+
+### Async Loading
+
+- Book config loads asynchronously on app initialization
+- `bookPath` must be set **before** emitting to `currentBookSubject`
+- Components must wait for manifest to load before fetching content
+- Use `combineLatest` or `filter` operators to handle async dependencies

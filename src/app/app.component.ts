@@ -25,18 +25,29 @@ export class AppComponent implements OnInit, OnDestroy {
   isDarkMode = false;
 
   ngOnInit(): void {
-    // Get available books
-    this.availableBooks = this.bookLoader.getAvailableBooks();
-    this.currentBookId = this.bookLoader.getCurrentBook();
+    // Subscribe to available books
+    this.bookLoader.availableBooks$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(books => {
+      this.availableBooks = books;
+    });
 
-    // Load the book manifest on app initialization
-    this.bookLoader.loadManifest().subscribe({
-      next: (manifest) => {
-        console.log('Book loaded:', manifest.title);
-      },
-      error: (err) => {
-        console.error('Failed to load book manifest:', err);
-      }
+    // Subscribe to current book changes
+    this.bookLoader.currentBook$.pipe(
+      filter(bookId => bookId !== ''),
+      takeUntil(this.destroy$)
+    ).subscribe(bookId => {
+      this.currentBookId = bookId;
+
+      // Load the book manifest when book changes
+      this.bookLoader.loadManifest().subscribe({
+        next: (manifest) => {
+          console.log('Book loaded:', manifest.title);
+        },
+        error: (err) => {
+          console.error('Failed to load book manifest:', err);
+        }
+      });
     });
 
     // Subscribe to manifest changes for title
@@ -54,13 +65,6 @@ export class AppComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(isDark => {
       this.isDarkMode = isDark;
-    });
-
-    // Subscribe to current book changes
-    this.bookLoader.currentBook$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(bookId => {
-      this.currentBookId = bookId;
     });
   }
 
