@@ -1,9 +1,13 @@
 {
   "books": [
     {
+      "id": "sample-book",
+      "name": "Sample Book - Lorem Ipsum"
+    },
+    {
       "id": "electronics-beginner",
       "name": "Electronics Beginner"
     }
   ],
-  "defaultBook": "electronics-beginner"
+  "defaultBook": "sample-book"
 }

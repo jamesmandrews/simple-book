@@ -1,7 +1,9 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # Ignore the book content (stored in src/assets/books/)
+# But keep the sample-book for demonstration purposes
 src/assets/books/*/
+!src/assets/books/sample-book/
 
 # Compiled output
 /dist

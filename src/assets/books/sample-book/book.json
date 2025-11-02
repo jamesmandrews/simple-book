@@ -1,0 +1,23 @@
+{
+  "title": "Sample Book - Lorem Ipsum",
+  "author": "Demo Author",
+  "version": "1.0.0",
+  "description": "A sample book demonstrating the Simple Book renderer with Lorem Ipsum content",
+  "chapters": [
+    {
+      "id": "chapter01",
+      "title": "Introduction to Lorem Ipsum",
+      "file": "chapter01.md",
+      "order": 1,
+      "part": "Part I: Fundamentals"
+    },
+    {
+      "id": "chapter02",
+      "title": "Advanced Lorem Techniques",
+      "file": "chapter02.md",
+      "order": 2,
+      "part": "Part I: Fundamentals"
+    }
+  ],
+  "appendices": []
+}
