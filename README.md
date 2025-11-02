@@ -1,4 +1,4 @@
-# BookRender - Markdown Book Renderer
+# Simple Book - Markdown Book Renderer
 
 An Angular 19 application for rendering Markdown-based books with navigation and a clean reading interface.
 

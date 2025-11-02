@@ -1,5 +1,5 @@
 {
-  "name": "bookrender",
+  "name": "simple-book",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
