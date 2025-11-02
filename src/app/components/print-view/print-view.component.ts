@@ -4,6 +4,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { marked } from 'marked';
 import { BookLoaderService } from '../../services/book-loader.service';
+import { PrintService } from '../../services/print.service';
 import { BookContent } from '../../models/book.model';
 
 @Component({
@@ -15,6 +16,7 @@ import { BookContent } from '../../models/book.model';
 })
 export class PrintViewComponent implements OnInit, OnDestroy, AfterViewChecked {
   private bookLoader = inject(BookLoaderService);
+  private printService = inject(PrintService);
   private sanitizer = inject(DomSanitizer);
   private elRef = inject(ElementRef);
   private renderer = inject(Renderer2);
@@ -30,6 +32,15 @@ export class PrintViewComponent implements OnInit, OnDestroy, AfterViewChecked {
     marked.setOptions({
       gfm: true,
       breaks: false,
+    });
+
+    // Subscribe to print requests
+    this.printService.printRequested$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      if (!this.loading) {
+        window.print();
+      }
     });
 
     // Wait for manifest, then load all chapters
@@ -55,9 +66,6 @@ export class PrintViewComponent implements OnInit, OnDestroy, AfterViewChecked {
               html: this.renderMarkdown(content.content)
             }));
             this.loading = false;
-
-            // Auto-trigger print dialog after content loads
-            setTimeout(() => window.print(), 500);
           },
           error: (err) => {
             console.error('Failed to load all chapters:', err);

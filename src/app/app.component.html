@@ -9,9 +9,9 @@
           }
         </select>
       }
-      <a class="print-btn" routerLink="/print" aria-label="Print entire book">
+      <button class="print-btn" (click)="onPrintClick()" aria-label="Print entire book">
         🖨️
-      </a>
+      </button>
       <button class="theme-toggle-btn" (click)="toggleTheme()" aria-label="Toggle dark mode">
         {{ isDarkMode ? '☀️' : '🌙' }}
       </button>

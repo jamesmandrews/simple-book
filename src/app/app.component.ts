@@ -5,6 +5,7 @@ import { Subject, takeUntil, filter } from 'rxjs';
 import { BookNavigationComponent } from './components/book-navigation/book-navigation.component';
 import { BookLoaderService } from './services/book-loader.service';
 import { ThemeService } from './services/theme.service';
+import { PrintService } from './services/print.service';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,7 @@ import { ThemeService } from './services/theme.service';
 export class AppComponent implements OnInit, OnDestroy {
   private bookLoader = inject(BookLoaderService);
   private themeService = inject(ThemeService);
+  private printService = inject(PrintService);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
 
@@ -75,6 +77,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
   toggleTheme(): void {
     this.themeService.toggleTheme();
+  }
+
+  onPrintClick(): void {
+    // Check if already on print page
+    if (this.router.url === '/print') {
+      // Already on print page, request print via service
+      this.printService.requestPrint();
+    } else {
+      // Navigate to print page first, then request print
+      this.router.navigate(['/print']).then(() => {
+        // Wait a bit for content to load, then request print
+        setTimeout(() => this.printService.requestPrint(), 500);
+      });
+    }
   }
 
   onBookChange(event: Event): void {
