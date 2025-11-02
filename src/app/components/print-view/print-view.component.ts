@@ -1,23 +1,25 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ElementRef, Renderer2, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { marked } from 'marked';
 import { BookLoaderService } from '../../services/book-loader.service';
 import { BookContent } from '../../models/book.model';
-import { CodeCopyDirective } from '../../directives/code-copy.directive';
 
 @Component({
   selector: 'app-print-view',
   standalone: true,
-  imports: [CommonModule, CodeCopyDirective],
+  imports: [CommonModule],
   templateUrl: './print-view.component.html',
   styleUrl: './print-view.component.css'
 })
-export class PrintViewComponent implements OnInit, OnDestroy {
+export class PrintViewComponent implements OnInit, OnDestroy, AfterViewChecked {
   private bookLoader = inject(BookLoaderService);
   private sanitizer = inject(DomSanitizer);
+  private elRef = inject(ElementRef);
+  private renderer = inject(Renderer2);
   private destroy$ = new Subject<void>();
+  private copyButtonsAdded = false;
 
   chapters: Array<{ title: string; html: SafeHtml }> = [];
   loading = true;
@@ -71,6 +73,13 @@ export class PrintViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  ngAfterViewChecked(): void {
+    if (this.chapters.length > 0 && !this.copyButtonsAdded) {
+      this.addCopyButtons();
+      this.copyButtonsAdded = true;
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -79,5 +88,38 @@ export class PrintViewComponent implements OnInit, OnDestroy {
   private renderMarkdown(markdown: string): SafeHtml {
     const html = marked.parse(markdown) as string;
     return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  private addCopyButtons(): void {
+    const codeBlocks = this.elRef.nativeElement.querySelectorAll('.markdown-content pre code');
+
+    codeBlocks.forEach((codeElement: HTMLElement) => {
+      const preElement = codeElement.parentElement;
+      if (!preElement || preElement.querySelector('.copy-code-btn')) return;
+
+      // Create copy button
+      const copyButton = this.renderer.createElement('button');
+      this.renderer.addClass(copyButton, 'copy-code-btn');
+      this.renderer.setAttribute(copyButton, 'aria-label', 'Copy code');
+      this.renderer.setProperty(copyButton, 'innerHTML', '📋');
+
+      // Add click handler
+      this.renderer.listen(copyButton, 'click', () => {
+        const code = codeElement.textContent || '';
+        navigator.clipboard.writeText(code).then(() => {
+          // Show feedback
+          this.renderer.setProperty(copyButton, 'innerHTML', '✓');
+          this.renderer.addClass(copyButton, 'copied');
+
+          setTimeout(() => {
+            this.renderer.setProperty(copyButton, 'innerHTML', '📋');
+            this.renderer.removeClass(copyButton, 'copied');
+          }, 2000);
+        });
+      });
+
+      // Add button to pre element
+      this.renderer.appendChild(preElement, copyButton);
+    });
   }
 }
